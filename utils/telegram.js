@@ -1,4 +1,5 @@
 const QRCode = require('qrcode');
+const { InputFile } = require('grammy');
 
 let telegramBot = null;
 
@@ -27,7 +28,9 @@ async function sendQRToTelegram(botName, qrString) {
       margin: 1
     });
 
-    await telegramBot.api.sendPhoto(adminId, qrBuffer, {
+    const inputFile = new InputFile(qrBuffer, `qr-${botName.toLowerCase().replace(' ', '')}.png`);
+    
+    await telegramBot.api.sendPhoto(adminId, inputFile, {
       caption: `🔄 QR Code for ${botName}\n\nScan this with WhatsApp to authenticate.`
     });
 
