@@ -41,7 +41,7 @@ function startBot1() {
   client.on('message', async msg => {
     if (msg.body.toLowerCase() === 'ping1') {
       console.log('Bot 1 received ping command');
-      await msg.reply('Pong from Bot 1');
+      await msg.reply('Pong from Bot 1 😂');
     }
   });
 
