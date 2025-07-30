@@ -47,4 +47,5 @@ RUN chown -R node:node /app
 
 USER node
 
-CMD ["npm", "start"]
+CMD ["npm", "dev"]
+# CMD ["npm", "start"] # Uncomment this line to run the app in production mode

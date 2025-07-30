@@ -10,3 +10,4 @@ Dockerfile
 docker-compose.yml
 .wwebjs_auth
 logs
+package-lock.json
