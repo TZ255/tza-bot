@@ -13,7 +13,6 @@ services:
       - whatsapp_sessions:/app/.wwebjs_auth
       - .:/app # Mount the current directory to /app, will be removed in production
       - /app/node_modules # Prevents overwriting node_modules, will be removed in production
-      - whatsapp_sessions:/app/.wwebjs_auth # Ensure session data is persistent
     ports:
       - "4000:4000"
     networks:
