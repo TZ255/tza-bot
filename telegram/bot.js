@@ -1,6 +1,6 @@
 const { Bot } = require('grammy');
-const { start, stop, restart, status, send } = require('../controllers/botManager');
-const { setTelegramBot, sendMessageToAdmin } = require('../utils/telegram');
+const getBot1Client = require('../bots/bot1/bot1');
+const getBot2Client = require('../bots/bot2/bot2');
 
 const adminID = process.env.TELEGRAM_ADMIN_ID
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN
@@ -15,8 +15,6 @@ async function TelegramWhatsAppManagerBot() {
   } catch (error) {
     console.log(error?.message)
   }
-
-  setTelegramBot(bot);
 
   bot.catch((err) => {
     const ctx = err.ctx;
@@ -39,11 +37,7 @@ async function TelegramWhatsAppManagerBot() {
         '• /start bot1 - Start Bot 1\n' +
         '• /start bot2 - Start Bot 2\n' +
         '• /stop bot1 - Stop Bot 1\n' +
-        '• /stop bot2 - Stop Bot 2\n' +
-        '• /restart bot1 - Restart Bot 1\n' +
-        '• /restart bot2 - Restart Bot 2\n' +
-        '• /send botid message | number - Send WhatsApp message\n' +
-        '• /status - Show bot status'
+        '• /stop bot2 - Stop Bot 2\n'
       );
     } catch (error) {
       console.log(error?.message)
@@ -62,19 +56,26 @@ async function TelegramWhatsAppManagerBot() {
 
       switch (command.toLowerCase()) {
         case 'start':
-          await ctx.reply(`Starting ${botid}`)
-          await start[botid]()
-          return await ctx.reply(`${botid} is starting...`);
+          if (botid === 'bot1') {
+            await ctx.reply(`Starting Bot 1...`);
+            return await getBot1Client();
+          }
+          if (botid === 'bot2') {
+            await ctx.reply(`Starting Bot 2...`);
+            return await getBot2Client();
+          }
+          break;
 
         case 'stop':
-          await ctx.reply(`Stopping ${botid}`)
-          await stop[botid]()
-          return await ctx.reply(`✅ ${botid} stopped`);
-
-        case 'restart':
-          await ctx.reply(`Restarting ${botid}`)
-          await restart[botid]()
-          return await ctx.reply(`✅ ${botid} restart command sent`);
+          if (botid === 'bot1') {
+            await ctx.reply(`Stopping Bot 1...`);
+            return await getBot1Client().destroy();
+          }
+          if (botid === 'bot2') {
+            await ctx.reply(`Stopping Bot 2...`);
+            return await getBot2Client().destroy();
+          }
+          break;
 
         default:
           return await ctx.reply('Invalid command. Use: start, stop, restart');
@@ -85,52 +86,7 @@ async function TelegramWhatsAppManagerBot() {
     }
   })
 
-  bot.command('send', async ctx => {
-    try {
-      if (!ctx.match) return await ctx.reply('Usage: /send botid message | number');
-      if (ctx.chat.id !== Number(adminID)) return await ctx.reply('You are not authorized');
-
-      const botids = ['bot1', 'bot2'];
-      const parts = ctx.match.split(' ');
-      const botid = parts[0];
-      
-      if (!botid || !botids.includes(botid)) {
-        return await ctx.reply('Invalid botid. Use: bot1 or bot2');
-      }
-
-      const messageData = parts.slice(1).join(' ');
-      if (!messageData.includes(' | ')) {
-        return await ctx.reply('Usage: /send botid message | number');
-      }
-
-      await ctx.reply(`Sending message via ${botid}...`);
-      const result = await send[botid](messageData);
-      return await ctx.reply(result.success ? `✅ ${result.message}` : `❌ ${result.message}`);
-
-    } catch (error) {
-      console.log(error?.message);
-      await ctx.reply('❌ Error sending message');
-    }
-  });
-
-  bot.command('status', async (ctx) => {
-    try {
-      const botStatus = status();
-      const message =
-        '📊 Bot Status\n\n' +
-        `Bot 1: ${botStatus.bot1}\n` +
-        `Bot 2: ${botStatus.bot2}`;
-      await ctx.reply(message);
-    } catch (error) {
-      await ctx.reply('❌ Error getting status');
-    }
-  });
-
-  bot.start().then(() => {
-    //clear pending updates
-    bot.api.deleteWebhook({ drop_pending_updates: true })
-      .catch(e => console.log(e.message))
-  }).catch(e => console.log(e.message, e))
+  bot.start().catch(e => console.log(e.message, e))
 }
 
 module.exports = TelegramWhatsAppManagerBot

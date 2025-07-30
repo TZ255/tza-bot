@@ -1,8 +1,14 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
-const { sendQRToTelegram, sendMessageToAdmin } = require('../utils/telegram');
+const { sendQRToTelegram, sendMessageToAdmin } = require('../../utils/telegram');
 
-function startBot1() {
-  const client = new Client({
+let client;
+let isInitialized = false;
+
+const getBot1Client = () => {
+
+  if (client && isInitialized) return client;
+
+  client = new Client({
     authStrategy: new LocalAuth({ clientId: 'bot1' }),
     puppeteer: {
       headless: true,
@@ -25,6 +31,7 @@ function startBot1() {
   });
 
   client.on('ready', () => {
+    isInitialized = true;
     console.log('✅ Bot 1 ready!')
     sendMessageToAdmin('Bot1 is ready ✅')
   });
@@ -34,6 +41,7 @@ function startBot1() {
   client.on('auth_failure', (msg) => console.error('❌ Bot 1 auth failed:', msg));
 
   client.on('disconnected', (reason) => {
+    isInitialized = false;
     console.log('⚠️ Bot 1 disconnected:', reason)
     sendMessageToAdmin(`⚠️ Bot 1 disconnected: \n${reason}`)
   });
@@ -49,4 +57,4 @@ function startBot1() {
   return client;
 }
 
-module.exports = startBot1;
+module.exports = getBot1Client;

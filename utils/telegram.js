@@ -1,17 +1,9 @@
 const QRCode = require('qrcode');
-const { InputFile } = require('grammy');
+const { Bot, InputFile } = require('grammy');
 
-let telegramBot = null;
-
-function setTelegramBot(bot) {
-  telegramBot = bot;
-}
+const bot = new Bot(process.env.TELEGRAM_BOT_TOKEN);
 
 async function sendQRToTelegram(botName, qrString) {
-  if (!telegramBot) {
-    console.error('Telegram bot not initialized');
-    return;
-  }
 
   const adminId = process.env.TELEGRAM_ADMIN_ID;
   if (!adminId) {
@@ -30,7 +22,7 @@ async function sendQRToTelegram(botName, qrString) {
 
     const inputFile = new InputFile(qrBuffer, `qr-${botName.toLowerCase().replace(' ', '')}.png`);
     
-    await telegramBot.api.sendPhoto(adminId, inputFile, {
+    await bot.api.sendPhoto(adminId, inputFile, {
       caption: `💥 QR Code for ${botName}\n\nScan this with WhatsApp to authenticate.`
     });
 
@@ -41,11 +33,6 @@ async function sendQRToTelegram(botName, qrString) {
 }
 
 async function sendMessageToAdmin(message) {
-  if (!telegramBot) {
-    console.error('Telegram bot not initialized');
-    return;
-  }
-
   const adminId = process.env.TELEGRAM_ADMIN_ID;
   if (!adminId) {
     console.error('TELEGRAM_ADMIN_ID not set');
@@ -53,10 +40,10 @@ async function sendMessageToAdmin(message) {
   }
 
   try {
-    await telegramBot.api.sendMessage(adminId, message);
+    await bot.api.sendMessage(adminId, message);
   } catch (error) {
     console.error('Error sending message to admin:', error);
   }
 }
 
-module.exports = { setTelegramBot, sendQRToTelegram, sendMessageToAdmin };
+module.exports = { sendQRToTelegram, sendMessageToAdmin };

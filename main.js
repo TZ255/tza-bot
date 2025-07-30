@@ -2,9 +2,17 @@ require('dotenv').config();
 const express = require('express');
 const TelegramWhatsAppManagerBot = require('./telegram/bot');
 const { start, stop, restart, status } = require('./controllers/botManager');
+const { formatEnglishClub } = require('./utils/englishclub');
+const { sendWhatsAppChannelMessage } = require('./utils/whatsapp');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
+const imp = {
+    englishClub: "120363417496609622@newsletter",
+    shemdoe: process.env.SHEMDOE_NUM,
+    mk_vip: '255711935460@c.us',
+    nyimboMpya: '120363401810537822@newsletter'
+}
 
 app.use(express.json());
 
@@ -126,6 +134,28 @@ app.get('/api/status', (req, res) => {
 //   }
 // });
 
+//posting english word to whatsapp channel
+app.post('/post/english', async (req, res) => {
+    try {
+        const wordObj = req.body;
+
+        if (!wordObj) {
+            return res.status(400).json({ message: 'Missing required fields' });
+        }
+
+        if(wordObj.secret !== process.env.SECRET) {
+            return res.status(400).json({ message: 'Unauthorized' });
+        }
+
+        const message = await formatEnglishClub(wordObj)
+        await sendWhatsAppChannelMessage('bot2', message, imp.englishClub);
+        res.status(200).json({ message: 'Word sent successfully' });
+    } catch (error) {
+        console.error('Error saving word:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 // 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({
@@ -157,7 +187,6 @@ async function startServer() {
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`✅ Express server running on port ${PORT}`);
       console.log(`🌐 Health check: http://localhost:${PORT}/`);
-      console.log(`📊 Bot status: http://localhost:${PORT}/api/status`);
       console.log('📱 Send /start to Telegram bot to manage WhatsApp bots');
     });
     

@@ -1,8 +1,14 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
-const { sendQRToTelegram, sendMessageToAdmin } = require('../utils/telegram');
+const { sendQRToTelegram, sendMessageToAdmin } = require('../../utils/telegram');
 
-function startBot2() {
-  const client = new Client({
+let client;
+let isInitialized = false;
+
+const getBot2Client = () => {
+
+  if (client && isInitialized) return client;
+
+  client = new Client({
     authStrategy: new LocalAuth({ clientId: 'bot2' }),
     puppeteer: {
       headless: true,
@@ -25,8 +31,9 @@ function startBot2() {
   });
 
   client.on('ready', () => {
+    isInitialized = true;
     console.log('✅ Bot 2 ready!')
-    sendMessageToAdmin('Bot2 is ready ✅');
+    sendMessageToAdmin('Bot2 is ready ✅')
   });
 
   client.on('authenticated', () => console.log('🔐 Bot 2 authenticated'));
@@ -34,14 +41,15 @@ function startBot2() {
   client.on('auth_failure', (msg) => console.error('❌ Bot 2 auth failed:', msg));
 
   client.on('disconnected', (reason) => {
-    console.log('⚠️ Bot 2 disconnected:', reason);
-    sendMessageToAdmin(`Bot2 disconnected ⚠️: \n${reason}`);
+    isInitialized = false;
+    console.log('⚠️ Bot 2 disconnected:', reason)
+    sendMessageToAdmin(`⚠️ Bot 2 disconnected: \n${reason}`)
   });
 
   client.on('message', async msg => {
     if (msg.body.toLowerCase() === 'ping2') {
       console.log('Bot 2 received ping command');
-      await msg.reply('Pong from Bot 2');
+      await msg.reply('Pong from Bot 2 😂');
     }
   });
 
@@ -49,4 +57,4 @@ function startBot2() {
   return client;
 }
 
-module.exports = startBot2;
+module.exports = getBot2Client;
