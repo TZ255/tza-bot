@@ -1,7 +1,6 @@
 require('dotenv').config();
 const express = require('express');
 const TelegramWhatsAppManagerBot = require('./telegram/bot');
-const { start, stop, restart, status } = require('./controllers/botManager');
 const { formatEnglishClub } = require('./utils/englishclub');
 const { sendWhatsAppChannelMessage } = require('./utils/whatsapp');
 
