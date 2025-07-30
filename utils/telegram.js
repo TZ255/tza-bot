@@ -31,7 +31,7 @@ async function sendQRToTelegram(botName, qrString) {
     const inputFile = new InputFile(qrBuffer, `qr-${botName.toLowerCase().replace(' ', '')}.png`);
     
     await telegramBot.api.sendPhoto(adminId, inputFile, {
-      caption: `🔄 QR Code for ${botName}\n\nScan this with WhatsApp to authenticate.`
+      caption: `💥 QR Code for ${botName}\n\nScan this with WhatsApp to authenticate.`
     });
 
     console.log(`QR code sent to Telegram for ${botName}`);
