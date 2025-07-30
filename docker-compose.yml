@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  whatsapp-bot-manager:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: whatsapp-bot-manager
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - .env
+    volumes:
+      - ./:/app  # Live code changes
+      - whatsapp_sessions:/app/.wwebjs_auth
+      - ./logs:/app/logs
+    ports:
+      - "4000:4000"
+    networks:
+      - bot-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:4000/", "||", "exit", "1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  whatsapp_sessions:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/.wwebjs_auth
+
+networks:
+  bot-network:
+    driver: bridge
