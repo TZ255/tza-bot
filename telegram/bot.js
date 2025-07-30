@@ -1,5 +1,5 @@
 const { Bot } = require('grammy');
-const { start, stop, restart, status } = require('../controllers/botManager');
+const { start, stop, restart, status, send } = require('../controllers/botManager');
 const { setTelegramBot, sendMessageToAdmin } = require('../utils/telegram');
 
 const adminID = process.env.TELEGRAM_ADMIN_ID
@@ -42,6 +42,7 @@ async function TelegramWhatsAppManagerBot() {
         '• /stop bot2 - Stop Bot 2\n' +
         '• /restart bot1 - Restart Bot 1\n' +
         '• /restart bot2 - Restart Bot 2\n' +
+        '• /send botid message | number - Send WhatsApp message\n' +
         '• /status - Show bot status'
       );
     } catch (error) {
@@ -56,14 +57,14 @@ async function TelegramWhatsAppManagerBot() {
 
       const botids = ['bot1', 'bot2']
       let match = ctx.match
-      let [command, botid] = ctx.match.split(' ').map(c => c.trim())
+      let [command, botid] = match.split(' ').map(c => c.trim())
       if (!command || !botid || !botids.includes(botid)) return await ctx.reply('No command or botid provided');
 
       switch (command.toLowerCase()) {
         case 'start':
           await ctx.reply(`Starting ${botid}`)
           await start[botid]()
-          return await ctx.reply(`✅ ${botid} started`);
+          return await ctx.reply(`${botid} is starting...`);
 
         case 'stop':
           await ctx.reply(`Stopping ${botid}`)
@@ -76,13 +77,41 @@ async function TelegramWhatsAppManagerBot() {
           return await ctx.reply(`✅ ${botid} restart command sent`);
 
         default:
-          return await ctx.reply('Invalid command. Use: start, stop, or restart');
+          return await ctx.reply('Invalid command. Use: start, stop, restart');
       }
 
     } catch (error) {
       console.log(error?.message)
     }
   })
+
+  bot.command('send', async ctx => {
+    try {
+      if (!ctx.match) return await ctx.reply('Usage: /send botid message | number');
+      if (ctx.chat.id !== Number(adminID)) return await ctx.reply('You are not authorized');
+
+      const botids = ['bot1', 'bot2'];
+      const parts = ctx.match.split(' ');
+      const botid = parts[0];
+      
+      if (!botid || !botids.includes(botid)) {
+        return await ctx.reply('Invalid botid. Use: bot1 or bot2');
+      }
+
+      const messageData = parts.slice(1).join(' ');
+      if (!messageData.includes(' | ')) {
+        return await ctx.reply('Usage: /send botid message | number');
+      }
+
+      await ctx.reply(`Sending message via ${botid}...`);
+      const result = await send[botid](messageData);
+      return await ctx.reply(result.success ? `✅ ${result.message}` : `❌ ${result.message}`);
+
+    } catch (error) {
+      console.log(error?.message);
+      await ctx.reply('❌ Error sending message');
+    }
+  });
 
   bot.command('status', async (ctx) => {
     try {

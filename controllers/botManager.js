@@ -59,9 +59,46 @@ const restart = {
   }
 };
 
+const send = {
+  bot1: async (messageData) => {
+    if (!bots.bot1) {
+      return { success: false, message: 'Bot 1 is not running' };
+    }
+    try {
+      const [message, number] = messageData.split(' | ').map(s => s.trim());
+      if (!message || !number) {
+        return { success: false, message: 'Invalid format. Use: message | number' };
+      }
+      await bots.bot1.sendMessage(`${number}@c.us`, message);
+      console.log(`Bot 1 sent message to ${number}`);
+      return { success: true, message: `Message sent to ${number}` };
+    } catch (error) {
+      console.error('Bot 1 send error:', error);
+      return { success: false, message: `Failed to send: ${error.message}` };
+    }
+  },
+  bot2: async (messageData) => {
+    if (!bots.bot2) {
+      return { success: false, message: 'Bot 2 is not running' };
+    }
+    try {
+      const [message, number] = messageData.split(' | ').map(s => s.trim());
+      if (!message || !number) {
+        return { success: false, message: 'Invalid format. Use: message | number' };
+      }
+      await bots.bot2.sendMessage(`${number}@c.us`, message);
+      console.log(`Bot 2 sent message to ${number}`);
+      return { success: true, message: `Message sent to ${number}` };
+    } catch (error) {
+      console.error('Bot 2 send error:', error);
+      return { success: false, message: `Failed to send: ${error.message}` };
+    }
+  }
+};
+
 const status = () => ({
   bot1: bots.bot1 ? '✅ Running' : '❌ Stopped',
   bot2: bots.bot2 ? '✅ Running' : '❌ Stopped'
 });
 
-module.exports = { start, stop, restart, status };
+module.exports = { start, stop, restart, status, send };
