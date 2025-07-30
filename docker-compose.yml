@@ -13,7 +13,7 @@ services:
       - .env
     volumes:
       - ./:/app  # Live code changes
-      - whatsapp_sessions:/app/.wwebjs_auth
+      - ./.wwebjs_auth:/app/.wwebjs_auth
       - ./logs:/app/logs
     ports:
       - "4000:4000"
@@ -27,12 +27,6 @@ services:
       start_period: 40s
 
 volumes:
-  whatsapp_sessions:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${PWD}/.wwebjs_auth
 
 networks:
   bot-network:
