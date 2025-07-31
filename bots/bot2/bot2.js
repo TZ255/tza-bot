@@ -47,8 +47,12 @@ const getBot2Client = () => {
   });
 
   client.on('message', async msg => {
-    if (msg.body.toLowerCase() === 'ping2') {
+    if (msg.body.toLowerCase() === 'ping') {
+      let chat = await msg.getChat()
+      await chat.sendStateTyping(); // Simulate typing
       console.log('Bot 2 received ping command');
+      //delay for 2 seconds to simulate processing
+      await new Promise(resolve => setTimeout(resolve, 2000));
       await msg.reply('Pong from Bot 2 😂');
     }
   });
