@@ -68,11 +68,9 @@ async function TelegramWhatsAppManagerBot() {
 
         case 'stop':
           if (botid === 'bot1') {
-            await ctx.reply(`Stopping Bot 1...`);
             return await getBot1Client().destroy();
           }
           if (botid === 'bot2') {
-            await ctx.reply(`Stopping Bot 2...`);
             return await getBot2Client().destroy();
           }
           break;

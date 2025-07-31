@@ -46,6 +46,34 @@ const getBot1Client = () => {
     sendMessageToAdmin(`⚠️ Bot 1 disconnected: \n${reason}`)
   });
 
+  //custom on destroy
+  // Store original destroy method
+  const originalDestroy = client.destroy.bind(client);
+
+  // Override destroy method to add custom logging
+  client.destroy = async function () {
+    console.log('🛑 Bot 1 is being destroyed...');
+    sendMessageToAdmin('🛑 Bot 1 is being destroyed...');
+
+    try {
+      const result = await originalDestroy();
+
+      // Reset state after successful destruction
+      isInitialized = false;
+      console.log('✅ Bot 1 destroyed successfully');
+      sendMessageToAdmin('✅ Bot 1 destroyed successfully');
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error during Bot 1 destruction:', error);
+      sendMessageToAdmin(`❌ Error during Bot 1 destruction: ${error.message}`);
+
+      // Reset state even on error
+      isInitialized = false;
+      throw error;
+    }
+  };
+
   client.on('message', async msg => {
     if (msg.body.toLowerCase() === 'ping') {
       let chat = await msg.getChat()
