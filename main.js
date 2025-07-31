@@ -3,6 +3,8 @@ const express = require('express');
 const TelegramWhatsAppManagerBot = require('./telegram/bot');
 const { formatEnglishClub } = require('./utils/englishclub');
 const { sendWhatsAppChannelMessage } = require('./utils/whatsapp');
+const getBot1Client = require('./bots/bot1/bot1');
+const getBot2Client = require('./bots/bot2/bot2');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -28,6 +30,10 @@ function checkEnv() {
   
   console.log('✅ Environment variables OK');
 }
+
+//starting bot on server start
+getBot1Client();
+getBot2Client();
 
 // Basic health check route
 app.get('/', (req, res) => {
