@@ -1,5 +1,6 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const { sendQRToTelegram, sendMessageToAdmin } = require('../../utils/telegram');
+const { ShemdoeAssistant } = require('../../utils/ai-assistant');
 
 let client;
 let isInitialized = false;
