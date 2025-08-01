@@ -1,4 +1,4 @@
-const OpenAI = require('openai');
+const { default: OpenAI } = require('openai');
 const { zodTextFormat } = require('openai/helpers/zod')
 const { z } = require('zod');
 const gptConvoStateModel = require('../model/gpt-convo');
