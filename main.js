@@ -5,6 +5,7 @@ const { formatEnglishClub } = require('./utils/englishclub');
 const { sendWhatsAppChannelMessage } = require('./utils/whatsapp');
 const getBot1Client = require('./bots/bot1/bot1');
 const getBot2Client = require('./bots/bot2/bot2');
+const { default: mongoose } = require('mongoose');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
