@@ -1,5 +1,6 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const { sendQRToTelegram, sendMessageToAdmin } = require('../../utils/telegram');
+const { ShemdoeAssistant } = require('../../utils/ai-assistant');
 
 let client;
 let isInitialized = false;
@@ -75,13 +76,20 @@ const getBot1Client = () => {
   };
 
   client.on('message', async msg => {
-    if (msg.body.toLowerCase() === 'ping') {
-      let chat = await msg.getChat()
-      await chat.sendStateTyping(); // Simulate typing
-      console.log('Bot 1 received ping command');
-      //delay for 2 seconds to simulate processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      await msg.reply('Pong from Bot 1 😂');
+    try {
+      let user_text = msg.body
+      if (!msg.fromMe) {
+        let chat = await msg.getChat()
+        await chat.sendStateTyping(); // Simulate typing
+        console.log('Bot 1 received a message');
+
+        //structure openai response
+        let response = await ShemdoeAssistant(chat.id, user_text)
+        await msg.reply(response);
+      }
+    } catch (error) {
+      console.log(error?.message)
+      sendMessageToAdmin(error?.message)
     }
   });
 

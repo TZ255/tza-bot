@@ -8,11 +8,19 @@ const getBot2Client = require('./bots/bot2/bot2');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
+
+// database connection
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('Connected to Vyuo Degree'))
+  .catch((err) => {
+    console.log(err)
+  })
+
 const imp = {
-    englishClub: "120363417496609622@newsletter",
-    shemdoe: process.env.SHEMDOE_NUM,
-    mk_vip: '255711935460@c.us',
-    nyimboMpya: '120363401810537822@newsletter'
+  englishClub: "120363417496609622@newsletter",
+  shemdoe: process.env.SHEMDOE_NUM,
+  mk_vip: '255711935460@c.us',
+  nyimboMpya: '120363401810537822@newsletter'
 }
 
 app.use(express.json());
@@ -22,12 +30,12 @@ function checkEnv() {
     console.error('❌ TELEGRAM_BOT_TOKEN is required');
     process.exit(1);
   }
-  
+
   if (!process.env.TELEGRAM_ADMIN_ID) {
     console.error('❌ TELEGRAM_ADMIN_ID is required');
     process.exit(1);
   }
-  
+
   console.log('✅ Environment variables OK');
 }
 
@@ -37,7 +45,7 @@ getBot2Client();
 
 // Basic health check route
 app.get('/', (req, res) => {
-  res.json({ 
+  res.json({
     status: 'running',
     service: 'WhatsApp Bot Manager',
     timestamp: new Date().toISOString()
@@ -64,14 +72,14 @@ app.get('/api/status', (req, res) => {
 // // Start bot endpoint
 // app.post('/api/start/:botId', (req, res) => {
 //   const { botId } = req.params;
-  
+
 //   if (botId !== 'bot1' && botId !== 'bot2') {
 //     return res.status(400).json({
 //       success: false,
 //       error: 'Invalid bot ID. Use bot1 or bot2'
 //     });
 //   }
-  
+
 //   try {
 //     start[botId]();
 //     res.json({
@@ -90,14 +98,14 @@ app.get('/api/status', (req, res) => {
 // // Stop bot endpoint
 // app.post('/api/stop/:botId', async (req, res) => {
 //   const { botId } = req.params;
-  
+
 //   if (botId !== 'bot1' && botId !== 'bot2') {
 //     return res.status(400).json({
 //       success: false,
 //       error: 'Invalid bot ID. Use bot1 or bot2'
 //     });
 //   }
-  
+
 //   try {
 //     await stop[botId]();
 //     res.json({
@@ -116,14 +124,14 @@ app.get('/api/status', (req, res) => {
 // // Restart bot endpoint
 // app.post('/api/restart/:botId', async (req, res) => {
 //   const { botId } = req.params;
-  
+
 //   if (botId !== 'bot1' && botId !== 'bot2') {
 //     return res.status(400).json({
 //       success: false,
 //       error: 'Invalid bot ID. Use bot1 or bot2'
 //     });
 //   }
-  
+
 //   try {
 //     await restart[botId]();
 //     res.json({
@@ -141,24 +149,24 @@ app.get('/api/status', (req, res) => {
 
 //posting english word to whatsapp channel
 app.post('/post/english', async (req, res) => {
-    try {
-        const wordObj = req.body;
+  try {
+    const wordObj = req.body;
 
-        if (!wordObj) {
-            return res.status(400).json({ message: 'Missing required fields' });
-        }
-
-        if(wordObj.secret !== process.env.SECRET) {
-            return res.status(400).json({ message: 'Unauthorized' });
-        }
-
-        const message = await formatEnglishClub(wordObj)
-        await sendWhatsAppChannelMessage('bot2', message, imp.englishClub);
-        res.status(200).json({ message: 'Word sent successfully' });
-    } catch (error) {
-        console.error('Error saving word:', error);
-        res.status(500).json({ message: 'Internal server error' });
+    if (!wordObj) {
+      return res.status(400).json({ message: 'Missing required fields' });
     }
+
+    if (wordObj.secret !== process.env.SECRET) {
+      return res.status(400).json({ message: 'Unauthorized' });
+    }
+
+    const message = await formatEnglishClub(wordObj)
+    await sendWhatsAppChannelMessage('bot2', message, imp.englishClub);
+    res.status(200).json({ message: 'Word sent successfully' });
+  } catch (error) {
+    console.error('Error saving word:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 });
 
 // 404 handler
@@ -181,20 +189,20 @@ app.use((error, req, res, next) => {
 async function startServer() {
   try {
     console.log('🚀 Starting WhatsApp Bot Manager Server...');
-    
+
     checkEnv();
-    
+
     // Start Telegram bot
     console.log('📱 Initializing Telegram bot...');
     TelegramWhatsAppManagerBot();
-    
+
     // Start Express server
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`✅ Express server running on port ${PORT}`);
       console.log(`🌐 Health check: http://localhost:${PORT}/`);
       console.log('📱 Send /start to Telegram bot to manage WhatsApp bots');
     });
-    
+
   } catch (error) {
     console.error('❌ Failed to start server:', error);
     process.exit(1);
