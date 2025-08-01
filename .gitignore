@@ -3,4 +3,3 @@ node_modules/
 .env
 API.md
 CLAUDE.md
-package-lock.json
