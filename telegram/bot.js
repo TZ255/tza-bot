@@ -75,6 +75,15 @@ async function TelegramWhatsAppManagerBot() {
           }
           break;
 
+        case 'logout':
+          if (botid === 'bot1') {
+            return await getBot1Client().logout();
+          }
+          if (botid === 'bot2') {
+            return await getBot2Client().logout();
+          }
+          break;
+
         default:
           return await ctx.reply('Invalid command. Use: start, stop, restart');
       }
