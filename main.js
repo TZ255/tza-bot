@@ -40,9 +40,9 @@ function checkEnv() {
   console.log('✅ Environment variables OK');
 }
 
-//starting bot on server start
-getBot1Client();
-getBot2Client();
+//starting bot on server start -- start on telegram
+// getBot1Client();
+// getBot2Client();
 
 // Basic health check route
 app.get('/', (req, res) => {
