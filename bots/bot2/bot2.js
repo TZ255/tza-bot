@@ -1,6 +1,12 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const { sendQRToTelegram, sendMessageToAdmin } = require('../../utils/telegram');
 const { ShemdoeAssistant } = require('../../utils/ai-assistant');
+const { clearSession } = require('../../utils/whatsapp');
+
+const clientConfig = {
+  clientId: 'bot2',
+  clientName: 'Bot 2'
+}
 
 let client;
 let isInitialized = false;
@@ -10,7 +16,7 @@ const getBot2Client = () => {
   if (client && isInitialized) return client;
 
   client = new Client({
-    authStrategy: new LocalAuth({ clientId: 'bot2' }),
+    authStrategy: new LocalAuth({ clientId: clientConfig.clientId }),
     puppeteer: {
       headless: true,
       args: [
@@ -27,24 +33,29 @@ const getBot2Client = () => {
   });
 
   client.on('qr', (qr) => {
-    console.log('QR code received for Bot 2');
-    sendQRToTelegram('Bot 2', qr);
+    console.log(`QR code received for ${clientConfig.clientName}`);
+    sendQRToTelegram(clientConfig.clientName, qr);
   });
 
   client.on('ready', () => {
     isInitialized = true;
-    console.log('✅ Bot 2 ready!')
-    sendMessageToAdmin('Bot2 is ready ✅')
+    console.log(`✅ ${clientConfig.clientName} ready!`)
+    sendMessageToAdmin(`${clientConfig.clientName} is ready ✅`)
   });
 
-  client.on('authenticated', () => console.log('🔐 Bot 2 authenticated'));
+  client.on('authenticated', () => console.log(`🔐 ${clientConfig.clientName} authenticated`));
 
-  client.on('auth_failure', (msg) => console.error('❌ Bot 2 auth failed:', msg));
+  client.on('auth_failure', (msg) => {
+      console.error(`${clientConfig.clientName} auth failed:`, msg)
+      sendMessageToAdmin(`${clientConfig.clientName} auth failed: ${msg}\n\nDeleting the session file.... send start command to start it`)
+      clearSession(clientConfig.clientId)
+      isInitialized = false;
+    });
 
   client.on('disconnected', (reason) => {
     isInitialized = false;
-    console.log('⚠️ Bot 2 disconnected:', reason)
-    sendMessageToAdmin(`⚠️ Bot 2 disconnected: \n${reason}`)
+    console.log(`⚠️ ${clientConfig.clientName} disconnected:`, reason)
+    sendMessageToAdmin(`⚠️ ${clientConfig.clientName} disconnected: \n${reason}`)
   });
 
   //custom on destroy
@@ -53,21 +64,21 @@ const getBot2Client = () => {
 
   // Override destroy method to add custom logging
   client.destroy = async function () {
-    console.log('🛑 Bot 2 is being destroyed...');
-    sendMessageToAdmin('🛑 Bot 2 is being destroyed...');
+    console.log(`🛑 ${clientConfig.clientName} is being destroyed...`);
+    sendMessageToAdmin(`🛑 ${clientConfig.clientName} is being destroyed...`);
 
     try {
       const result = await originalDestroy();
 
       // Reset state after successful destruction
       isInitialized = false;
-      console.log('✅ Bot 2 destroyed successfully');
-      sendMessageToAdmin('✅ Bot 2 destroyed successfully');
+      console.log(`✅ ${clientConfig.clientName} destroyed successfully`);
+      sendMessageToAdmin(`✅ ${clientConfig.clientName} destroyed successfully`);
 
       return result;
     } catch (error) {
-      console.error('❌ Error during Bot 2 destruction:', error);
-      sendMessageToAdmin(`❌ Error during Bot 2 destruction: ${error.message}`);
+      console.error(`❌ Error during ${clientConfig.clientName} destruction:`, error);
+      sendMessageToAdmin(`❌ Error during ${clientConfig.clientName} destruction: ${error.message}`);
 
       // Reset state even on error
       isInitialized = false;
@@ -81,7 +92,7 @@ const getBot2Client = () => {
       if (!msg.fromMe) {
         let chat = await msg.getChat()
         await chat.sendStateTyping(); // Simulate typing
-        console.log('Bot 2 received a message');
+        console.log(`${clientConfig.clientName} received a message`);
 
         //structure openai response
         let response = await ShemdoeAssistant(chat.id.user, user_text)
