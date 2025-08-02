@@ -84,7 +84,7 @@ const getBot2Client = () => {
         console.log('Bot 2 received a message');
 
         //structure openai response
-        let response = await ShemdoeAssistant(chat.id, user_text)
+        let response = await ShemdoeAssistant(chat.id.user, user_text)
         await msg.reply(response);
       }
     } catch (error) {

@@ -1,5 +1,6 @@
 services:
   whatsapp-bot-manager:
+    image: shemdoe/whatsapp-bot-manager:2
     build:
       context: .
       dockerfile: Dockerfile
