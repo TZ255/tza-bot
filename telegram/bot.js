@@ -1,6 +1,8 @@
 const { Bot } = require('grammy');
 const getBot1Client = require('../bots/bot1/bot1');
 const getBot2Client = require('../bots/bot2/bot2');
+const { sendMessageToAdmin } = require('../utils/telegram');
+const { clearSession } = require('../utils/whatsapp');
 
 const adminID = process.env.TELEGRAM_ADMIN_ID
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN
@@ -34,10 +36,10 @@ async function TelegramWhatsAppManagerBot() {
       await ctx.reply(
         '🤖 WhatsApp Bot Manager\n\n' +
         'Commands:\n' +
-        '• /start bot1 - Start Bot 1\n' +
-        '• /start bot2 - Start Bot 2\n' +
-        '• /stop bot1 - Stop Bot 1\n' +
-        '• /stop bot2 - Stop Bot 2\n'
+        '• /manage start <clientid> - Start <clientid>\n' +
+        '• /manage stop <clientid> - Stop <clientid>\n' +
+        '• /manage logout <clientid> - logout <clientid>\n' +
+        '• /manage clear_session <clientid> - Remove session file for <clientid>\n'
       );
     } catch (error) {
       console.log(error?.message)
@@ -84,12 +86,22 @@ async function TelegramWhatsAppManagerBot() {
           }
           break;
 
+        case 'clear_session':
+          if (botid === 'bot1') {
+            return clearSession('bot1');
+          }
+          if (botid === 'bot2') {
+            return clearSession('bot2');
+          }
+          break;
+
         default:
-          return await ctx.reply('Invalid command. Use: start, stop, restart');
+          return await ctx.reply('Invalid command. Use: start, stop, clear_session');
       }
 
     } catch (error) {
       console.log(error?.message)
+      sendMessageToAdmin(error?.message)
     }
   })
 

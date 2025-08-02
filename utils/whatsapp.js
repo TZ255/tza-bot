@@ -1,5 +1,8 @@
+const fs = require('fs');
+const path = require('path');
 const getBot1Client = require("../bots/bot1/bot1");
 const getBot2Client = require("../bots/bot2/bot2");
+const { sendMessageToAdmin } = require("./telegram");
 
 const sendWhatsAppMessage = async (botId, message, number) => {
   try {
@@ -31,4 +34,20 @@ const sendWhatsAppChannelMessage = async (botId, message, channelId) => {
   }
 };
 
-module.exports = { sendWhatsAppMessage, sendWhatsAppChannelMessage };
+function clearSession(clientId) {
+  const sessionFolder = `session-${clientId.replace(/_/g, '-')}`;
+  const sessionPath = path.join(__dirname, '..', '.wwebjs_auth', sessionFolder);
+
+  if (fs.existsSync(sessionPath)) {
+    fs.rmSync(sessionPath, { recursive: true, force: true });
+    console.log(`[clearSession] Deleted session for "${clientId}"`);
+    sendMessageToAdmin(`✅ Session for bot1 cleared successfully`)
+    return true;
+  } else {
+    console.log(`[clearSession] No session found for "${clientId}"`);
+    sendMessageToAdmin(`❌ No session found for "${clientId}"`)
+    return false;
+  }
+}
+
+module.exports = { sendWhatsAppMessage, sendWhatsAppChannelMessage, clearSession };

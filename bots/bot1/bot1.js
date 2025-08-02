@@ -1,6 +1,8 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const { sendQRToTelegram, sendMessageToAdmin } = require('../../utils/telegram');
 const { ShemdoeAssistant } = require('../../utils/ai-assistant');
+const fs = require('fs');
+const path = require('path');
 
 let client;
 let isInitialized = false;
@@ -39,7 +41,10 @@ const getBot1Client = () => {
 
   client.on('authenticated', () => console.log('🔐 Bot 1 authenticated'));
 
-  client.on('auth_failure', (msg) => console.error('❌ Bot 1 auth failed:', msg));
+  client.on('auth_failure', (msg) => {
+    console.error('❌ Bot 1 auth failed:', msg)
+    sendMessageToAdmin(`❌ Bot 1 auth failed: ${msg}`)
+  });
 
   client.on('disconnected', (reason) => {
     isInitialized = false;
