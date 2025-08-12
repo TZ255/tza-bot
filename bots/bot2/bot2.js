@@ -46,11 +46,11 @@ const getBot2Client = () => {
   client.on('authenticated', () => console.log(`🔐 ${clientConfig.clientName} authenticated`));
 
   client.on('auth_failure', (msg) => {
-      console.error(`${clientConfig.clientName} auth failed:`, msg)
-      sendMessageToAdmin(`${clientConfig.clientName} auth failed: ${msg}\n\nDeleting the session file.... send start command to start it`)
-      clearSession(clientConfig.clientId)
-      isInitialized = false;
-    });
+    console.error(`${clientConfig.clientName} auth failed:`, msg)
+    sendMessageToAdmin(`${clientConfig.clientName} auth failed: ${msg}\n\nDeleting the session file.... send start command to start it`)
+    clearSession(clientConfig.clientId)
+    isInitialized = false;
+  });
 
   client.on('disconnected', (reason) => {
     isInitialized = false;
@@ -90,12 +90,23 @@ const getBot2Client = () => {
     try {
       let user_text = msg.body
       if (!msg.fromMe) {
-        let chat = await msg.getChat()
-        await chat.sendStateTyping(); // Simulate typing
         console.log(`${clientConfig.clientName} received a message`);
+
+        let chat = await msg.getChat()
+        await chat.sendStateTyping();
+
+        // Keep sending typing state every few seconds until response is ready
+        let typingInterval = setInterval(() => {
+          chat.sendStateTyping().catch((e) => { console.log(e?.message) }); // keep retrying, ignore and log errors
+        }, 4000); // repeat every 4 seconds (WhatsApp typing timeout is ~5 seconds)
 
         //structure openai response
         let response = await ShemdoeAssistant(chat.id.user, user_text)
+
+        // Stop the interval, we have response now
+        clearInterval(typingInterval);
+
+        // reply to user
         await msg.reply(response);
       }
     } catch (error) {
