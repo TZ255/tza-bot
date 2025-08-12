@@ -63,6 +63,7 @@ const ShemdoeAssistant = async (user_id, user_input) => {
                     ],
                 },
             ],
+            text: {verbosity: "low"},
             tools: [{
                 type: "file_search",
                 vector_store_ids: [`${process.env.SHEMDOE_VECTOR_STORE}`], //for imma testing
