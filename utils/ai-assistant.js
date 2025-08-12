@@ -19,7 +19,7 @@ Your Role:
 - Always reply using short, clear WhatsApp-friendly messages.
 
 Formatting:
-- Use *bold* to bold important words.
+- Use *single asterisks* to make important words bold (like *this*), not double asterisks.
 - Use ">" for tips or quotes.
 - Use numbered lists for steps/options.
 
