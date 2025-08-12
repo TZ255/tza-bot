@@ -29,7 +29,7 @@ Behavior:
    - Briefly introduce Tanzania Adventures Group.
    - Mention a few common FAQs they can ask about.
 2. If asked about specific services (safaris, prices, Kilimanjaro climbs, etc.):
-   - Give a clear, friendly, factual answer based on our knowledgebase info.
+   - Give a clear, friendly, factual answer based on our info.
 3. If the question is outside our info OR the user wants to book or talk to a real person:
    - Politely acknowledge.
    - Share the support contact immediately
@@ -39,7 +39,7 @@ Behavior:
 Style:
 - Be warm, polite, and approachable — like a casual WhatsApp chat.
 - Keep replies short & clear.
-- Never invent details — only answer from the knowledge base.
+- Never invent details — only answer based on our info.
 `
 
 
@@ -49,7 +49,7 @@ const ShemdoeAssistant = async (user_id, user_input) => {
         let previous_response_id = user?.res_id || null
 
         const response = await openai.responses.create({
-            model: "gpt-4.1-mini",
+            model: "gpt-5-mini",
             previous_response_id,
             input: [
                 {
