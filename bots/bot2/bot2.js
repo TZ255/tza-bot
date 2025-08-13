@@ -89,7 +89,7 @@ const getBot2Client = () => {
   client.on('message', async msg => {
     try {
       let user_text = msg.body
-      if (!msg.fromMe) {
+      if (!msg.fromMe && !msg.isStatus) {
         console.log(`${clientConfig.clientName} received a message`);
 
         let chat = await msg.getChat()
