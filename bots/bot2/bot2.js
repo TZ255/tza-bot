@@ -86,32 +86,50 @@ const getBot2Client = () => {
     }
   };
 
-  client.on('message', async msg => {
+  client.on('message', async (msg) => {
+    let typingInterval;
+
     try {
-      let user_text = msg.body
-      if (!msg.fromMe && !msg.isStatus) {
-        console.log(`${clientConfig.clientName} received a message`);
-
-        let chat = await msg.getChat()
-        await chat.sendStateTyping();
-
-        // Keep sending typing state every few seconds until response is ready
-        let typingInterval = setInterval(() => {
-          chat.sendStateTyping().catch((e) => { console.log(e?.message) }); // keep retrying, ignore and log errors
-        }, 4000); // repeat every 4 seconds (WhatsApp typing timeout is ~5 seconds)
-
-        //structure openai response
-        let response = await ShemdoeAssistant(chat.id.user, user_text)
-
-        // Stop the interval, we have response now
-        clearInterval(typingInterval);
-
-        // reply to user
-        await msg.reply(response);
+      // Ignore messages from me, status updates, gifs
+      if (msg.fromMe || msg.isStatus || msg.isGif) {
+        return console.log(`${clientConfig.clientName} unsupported msg`);
       }
+
+      // Ignore groups
+      if (msg.from.endsWith('@g.us')) {
+        return console.log(`${clientConfig.clientName} group message ignored`);
+      }
+
+      // Handle media
+      if (msg.hasMedia) {
+        return await msg.reply('Hey! I’m just an assistant bot and can’t process files or media yet.\nPlease reach out to our support team, we’ll be happy to help:\n> WhatsApp: +255 754 042 154');
+      }
+
+      const user_text = msg.body?.trim() || '';
+      if (!user_text) return console.log('Empty body');
+
+      console.log(`${clientConfig.clientName} received: ${user_text}`);
+
+      let chat = await msg.getChat();
+      await chat.sendStateTyping();
+
+      // Keep typing indicator until response is ready
+      typingInterval = setInterval(() => {
+        chat.sendStateTyping().catch((e) => console.log(e?.message));
+      }, 4000);
+
+      // Get AI response
+      const response = await ShemdoeAssistant(chat.id.user, user_text);
+
+      // Stop typing indicator
+      clearInterval(typingInterval);
+
+      await msg.reply(response);
+
     } catch (error) {
-      console.log(error?.message)
-      sendMessageToAdmin(error?.message)
+      clearInterval(typingInterval);
+      console.log(error?.message);
+      sendMessageToAdmin(error?.message);
     }
   });
 
