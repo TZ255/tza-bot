@@ -4,7 +4,7 @@ const { z } = require('zod');
 const gptConvoStateModel = require('../model/gpt-convo');
 
 const openai = new OpenAI({
-    apiKey: process.env.SHEMDOE_OPENAI_KEY,
+    apiKey: process.env.IMMA_OPENAI_KEY,
 });
 
 
@@ -68,7 +68,7 @@ const ShemdoeAssistant = async (user_id, user_input) => {
             ],
             tools: [{
                 type: "file_search",
-                vector_store_ids: [`${process.env.SHEMDOE_VECTOR_STORE}`], //for imma testing
+                vector_store_ids: ['vs_688cdb69cf108191a1a8f34422bfd08b'], // imma
             }],
             store: true,
         });

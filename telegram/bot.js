@@ -3,8 +3,9 @@ const getBot1Client = require('../bots/bot1/bot1');
 const getBot2Client = require('../bots/bot2/bot2');
 const { sendMessageToAdmin } = require('../utils/telegram');
 const { clearSession } = require('../utils/whatsapp');
+const GLOBAL_VARS = require('../utils/GLOBALS');
 
-const adminID = process.env.TELEGRAM_ADMIN_ID
+const ADMINS = GLOBAL_VARS.ADMINS;
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN
 
 async function TelegramWhatsAppManagerBot() {
@@ -25,7 +26,7 @@ async function TelegramWhatsAppManagerBot() {
 
   bot.command('start', async (ctx) => {
     try {
-      await ctx.reply('Hi! Welcome to Shemdoe\'s Telegram WhatsApp bot manager. Run /admin to see commands')
+      await ctx.reply('Hi! Welcome to Tanzania Adventure\'s Telegram WhatsApp bot manager. Run /admin to see commands')
     } catch (error) {
       console.log(error?.message)
     }
@@ -49,9 +50,9 @@ async function TelegramWhatsAppManagerBot() {
   bot.command('manage', async ctx => {
     try {
       if (!ctx.match) return await ctx.reply('This command run with match <start, stop, restart> <botid>');
-      if (ctx.chat.id !== Number(adminID)) return await ctx.reply('You are not authorized');
+      if (!ADMINS.includes(ctx.chat.id)) return await ctx.reply('You are not authorized');
 
-      const botids = ['bot1', 'bot2']
+      const botids = ['bot1']
       let match = ctx.match
       let [command, botid] = match.split(' ').map(c => c.trim())
       if (!command || !botid || !botids.includes(botid)) return await ctx.reply('No command or botid provided');
@@ -62,18 +63,11 @@ async function TelegramWhatsAppManagerBot() {
             await ctx.reply(`Starting Bot 1...`);
             return await getBot1Client();
           }
-          if (botid === 'bot2') {
-            await ctx.reply(`Starting Bot 2...`);
-            return await getBot2Client();
-          }
           break;
 
         case 'stop':
           if (botid === 'bot1') {
             return await getBot1Client().destroy();
-          }
-          if (botid === 'bot2') {
-            return await getBot2Client().destroy();
           }
           break;
 
@@ -81,17 +75,11 @@ async function TelegramWhatsAppManagerBot() {
           if (botid === 'bot1') {
             return await getBot1Client().logout();
           }
-          if (botid === 'bot2') {
-            return await getBot2Client().logout();
-          }
           break;
 
         case 'clear_session':
           if (botid === 'bot1') {
             return clearSession('bot1');
-          }
-          if (botid === 'bot2') {
-            return clearSession('bot2');
           }
           break;
 

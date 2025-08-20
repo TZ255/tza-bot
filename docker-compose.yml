@@ -1,10 +1,9 @@
 services:
-  whatsapp-bot-manager:
-    image: shemdoe/whatsapp-bot-manager:2
+  whatsapp-bot:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: whatsapp-bot-manager
+    container_name: whatsapp-bot
     restart: unless-stopped
     environment:
       - NODE_ENV=production

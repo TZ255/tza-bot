@@ -1,15 +1,10 @@
 const QRCode = require('qrcode');
 const { Bot, InputFile } = require('grammy');
+const GLOBAL_VARS = require('./GLOBALS');
 
 const bot = new Bot(process.env.TELEGRAM_BOT_TOKEN);
 
 async function sendQRToTelegram(botName, qrString) {
-
-  const adminId = process.env.TELEGRAM_ADMIN_ID;
-  if (!adminId) {
-    console.error('TELEGRAM_ADMIN_ID not set');
-    return;
-  }
 
   try {
     console.log(`Generating QR code for ${botName}...`);
@@ -22,7 +17,7 @@ async function sendQRToTelegram(botName, qrString) {
 
     const inputFile = new InputFile(qrBuffer, `qr-${botName.toLowerCase().replace(' ', '')}.png`);
     
-    await bot.api.sendPhoto(adminId, inputFile, {
+    await bot.api.sendPhoto(GLOBAL_VARS.logs, inputFile, {
       caption: `💥 QR Code for ${botName}\n\nScan this with WhatsApp to authenticate.`
     });
 
@@ -33,14 +28,8 @@ async function sendQRToTelegram(botName, qrString) {
 }
 
 async function sendMessageToAdmin(message) {
-  const adminId = process.env.TELEGRAM_ADMIN_ID;
-  if (!adminId) {
-    console.error('TELEGRAM_ADMIN_ID not set');
-    return;
-  }
-
   try {
-    await bot.api.sendMessage(adminId, message);
+    await bot.api.sendMessage(GLOBAL_VARS.shemdoe, message);
   } catch (error) {
     console.error('Error sending message to admin:', error);
   }

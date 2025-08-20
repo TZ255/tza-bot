@@ -1,8 +1,7 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const { sendQRToTelegram, sendMessageToAdmin } = require('../../utils/telegram');
 const { ShemdoeAssistant } = require('../../utils/ai-assistant');
-const fs = require('fs');
-const path = require('path');
+const { clearSession } = require('../../utils/whatsapp');
 
 const clientConfig = {
   clientId: 'bot1',
@@ -47,11 +46,11 @@ const getBot1Client = () => {
   client.on('authenticated', () => console.log(`🔐 ${clientConfig.clientName} authenticated`));
 
   client.on('auth_failure', (msg) => {
-      console.error(`${clientConfig.clientName} auth failed:`, msg)
-      sendMessageToAdmin(`${clientConfig.clientName} auth failed: ${msg}\n\nDeleting the session file.... send start command to start it`)
-      clearSession(clientConfig.clientId)
-      isInitialized = false;
-    });
+    console.error(`${clientConfig.clientName} auth failed:`, msg)
+    sendMessageToAdmin(`${clientConfig.clientName} auth failed: ${msg}\n\nDeleting the session file.... send start command to start it`)
+    clearSession(clientConfig.clientId)
+    isInitialized = false;
+  });
 
   client.on('disconnected', (reason) => {
     isInitialized = false;
@@ -87,21 +86,50 @@ const getBot1Client = () => {
     }
   };
 
-  client.on('message', async msg => {
-    try {
-      let user_text = msg.body
-      if (!msg.fromMe) {
-        let chat = await msg.getChat()
-        await chat.sendStateTyping(); // Simulate typing
-        console.log(`${clientConfig.clientName} received a message`);
+  client.on('message', async (msg) => {
+    let typingInterval;
 
-        //structure openai response
-        let response = await ShemdoeAssistant(chat.id.user, user_text)
-        await msg.reply(response);
+    try {
+      // Ignore messages from me, status updates, gifs
+      if (msg.fromMe || msg.isStatus || msg.isGif) {
+        return console.log(`${clientConfig.clientName} unsupported msg`);
       }
+
+      // Ignore groups
+      if (msg.from.endsWith('@g.us')) {
+        return console.log(`${clientConfig.clientName} group message ignored`);
+      }
+
+      // Handle media
+      if (msg.hasMedia) {
+        return await msg.reply('Hey! I’m just an assistant bot and can’t process files or media yet.\nPlease reach out to our support team, we’ll be happy to help:\n> WhatsApp: +255 754 042 154');
+      }
+
+      const user_text = msg.body?.trim() || '';
+      if (!user_text) return console.log('Empty body');
+
+      console.log(`${clientConfig.clientName} received: ${user_text}`);
+
+      let chat = await msg.getChat();
+      await chat.sendStateTyping();
+
+      // Keep typing indicator until response is ready
+      typingInterval = setInterval(() => {
+        chat.sendStateTyping().catch((e) => console.log(e?.message));
+      }, 4000);
+
+      // Get AI response
+      const response = await ShemdoeAssistant(chat.id.user, user_text);
+
+      // Stop typing indicator
+      clearInterval(typingInterval);
+
+      await msg.reply(response);
+
     } catch (error) {
-      console.log(error?.message)
-      sendMessageToAdmin(error?.message)
+      clearInterval(typingInterval);
+      console.log(error?.message);
+      sendMessageToAdmin(error?.message);
     }
   });
 
