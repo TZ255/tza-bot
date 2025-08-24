@@ -29,7 +29,7 @@ async function sendQRToTelegram(botName, qrString) {
 
 async function sendMessageToAdmin(message) {
   try {
-    await bot.api.sendMessage(GLOBAL_VARS.shemdoe, message);
+    await bot.api.sendMessage(GLOBAL_VARS.logs, message);
   } catch (error) {
     console.error('Error sending message to admin:', error);
   }
