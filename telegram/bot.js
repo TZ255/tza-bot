@@ -87,7 +87,6 @@ async function TelegramWhatsAppManagerBot() {
       if (data === 'start_bot1') {
         await ctx.reply('Starting Bot 1... ⏳');
         await getBot1Client();
-        await ctx.reply('✅ Bot 1 started successfully.');
       } else if (data === 'stop_bot1') {
         await getBot1Client().logout();
         return await ctx.reply('🛑 Bot 1 stopped successfully.');
