@@ -89,18 +89,13 @@ async function startServer() {
   }
 }
 
-process.on('SIGINT', shutdown);
-process.on('SIGTERM', shutdown);
-
 // Handle uncaught exceptions
 process.on('uncaughtException', (error) => {
   console.error('💥 Uncaught Exception:', error);
-  shutdown();
 });
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('💥 Unhandled Rejection at:', promise, 'reason:', reason);
-  shutdown();
 });
 
 startServer();
