@@ -25,24 +25,6 @@ const imp = {
 
 app.use(express.json());
 
-function checkEnv() {
-  if (!process.env.TELEGRAM_BOT_TOKEN) {
-    console.error('❌ TELEGRAM_BOT_TOKEN is required');
-    process.exit(1);
-  }
-
-  if (!process.env.TELEGRAM_ADMIN_ID) {
-    console.error('❌ TELEGRAM_ADMIN_ID is required');
-    process.exit(1);
-  }
-
-  console.log('✅ Environment variables OK');
-}
-
-//starting bot on server start -- start on telegram
-// getBot1Client();
-// getBot2Client();
-
 // Basic health check route
 app.get('/', (req, res) => {
   res.json({
@@ -90,8 +72,6 @@ async function startServer() {
   try {
     console.log('🚀 Starting WhatsApp Bot Manager Server...');
 
-    checkEnv();
-
     // Start Telegram bot
     console.log('📱 Initializing Telegram bot...');
     TelegramWhatsAppManagerBot();
@@ -107,12 +87,6 @@ async function startServer() {
     console.error('❌ Failed to start server:', error);
     process.exit(1);
   }
-}
-
-// Graceful shutdown
-function shutdown() {
-  console.log('\n🛑 Shutting down server...');
-  process.exit(0);
 }
 
 process.on('SIGINT', shutdown);
