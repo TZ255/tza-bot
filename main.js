@@ -4,11 +4,10 @@ const TelegramWhatsAppManagerBot = require('./telegram/bot');
 const { formatEnglishClub } = require('./utils/englishclub');
 const { sendWhatsAppChannelMessage } = require('./utils/whatsapp');
 const getBot1Client = require('./bots/bot1/bot1');
-const getBot2Client = require('./bots/bot2/bot2');
 const { default: mongoose } = require('mongoose');
 
 const app = express();
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 4100;
 
 // database connection
 mongoose.connect(process.env.MONGO_URI)
@@ -67,106 +66,6 @@ app.get('/api/status', (req, res) => {
       success: false,
       error: error.message
     });
-  }
-});
-
-// // Start bot endpoint
-// app.post('/api/start/:botId', (req, res) => {
-//   const { botId } = req.params;
-
-//   if (botId !== 'bot1' && botId !== 'bot2') {
-//     return res.status(400).json({
-//       success: false,
-//       error: 'Invalid bot ID. Use bot1 or bot2'
-//     });
-//   }
-
-//   try {
-//     start[botId]();
-//     res.json({
-//       success: true,
-//       message: `${botId} start command sent`,
-//       timestamp: new Date().toISOString()
-//     });
-//   } catch (error) {
-//     res.status(500).json({
-//       success: false,
-//       error: error.message
-//     });
-//   }
-// });
-
-// // Stop bot endpoint
-// app.post('/api/stop/:botId', async (req, res) => {
-//   const { botId } = req.params;
-
-//   if (botId !== 'bot1' && botId !== 'bot2') {
-//     return res.status(400).json({
-//       success: false,
-//       error: 'Invalid bot ID. Use bot1 or bot2'
-//     });
-//   }
-
-//   try {
-//     await stop[botId]();
-//     res.json({
-//       success: true,
-//       message: `${botId} stopped`,
-//       timestamp: new Date().toISOString()
-//     });
-//   } catch (error) {
-//     res.status(500).json({
-//       success: false,
-//       error: error.message
-//     });
-//   }
-// });
-
-// // Restart bot endpoint
-// app.post('/api/restart/:botId', async (req, res) => {
-//   const { botId } = req.params;
-
-//   if (botId !== 'bot1' && botId !== 'bot2') {
-//     return res.status(400).json({
-//       success: false,
-//       error: 'Invalid bot ID. Use bot1 or bot2'
-//     });
-//   }
-
-//   try {
-//     await restart[botId]();
-//     res.json({
-//       success: true,
-//       message: `${botId} restart command sent`,
-//       timestamp: new Date().toISOString()
-//     });
-//   } catch (error) {
-//     res.status(500).json({
-//       success: false,
-//       error: error.message
-//     });
-//   }
-// });
-
-//posting english word to whatsapp channel
-app.post('/post/english', async (req, res) => {
-  try {
-    const wordObj = req.body;
-
-    if (!wordObj) {
-      return res.status(400).json({ message: 'Missing required fields' });
-    }
-
-    if (wordObj.secret !== process.env.SECRET) {
-      return res.status(400).json({ message: 'Unauthorized' });
-    }
-
-    const message = await formatEnglishClub(wordObj)
-    await sendWhatsAppChannelMessage('bot2', message, imp.englishClub);
-    res.status(200).json({ message: 'Word sent successfully' });
-  } catch (error) {
-    console.error('Error saving word:', error);
-    res.status(500).json({ message: 'Internal server error' });
   }
 });
 
