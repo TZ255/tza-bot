@@ -42,7 +42,6 @@ async function TelegramWhatsAppManagerBot() {
 
   // Handle start/stop via buttons
   bot.on('message:text', async ctx => {
-    console.log(ctx.chat, ctx.message)
     if (ctx.chat?.id === GLOBAL_VARS.logs && GLOBAL_VARS.ADMINS.includes(ctx.from?.id) && ctx.message.text) {
       if (!['start', 'logout', 'clear_session'].includes(ctx.message.text.toLowerCase())) {
         return await ctx.reply('Admin commands inside Logs Channel.\n\n Send start, stop, logout, or clear_session')
