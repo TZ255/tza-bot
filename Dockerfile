@@ -38,7 +38,7 @@ COPY . .
 
 RUN mkdir -p .wwebjs_auth && chown -R node:node .wwebjs_auth && chmod -R 755 .wwebjs_auth
 
-EXPOSE 4000
+EXPOSE 4100
 
 ENV NODE_ENV=production
 
